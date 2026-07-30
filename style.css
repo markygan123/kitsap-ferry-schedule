@@ -1,0 +1,147 @@
+/* CSS RESET */
+
+*, *::before, ::after {
+	box-sizing: border-box;
+}
+* {
+	margin: 0;
+	padding: 0;
+	font: inherit;
+}
+html {
+	color-scheme: dark light;
+}
+body {
+	min-height: 100vh;
+}
+img, picture, svg, video {
+	display: block;
+	max-width: 100%;
+}
+
+/* CSS VARS */
+
+:root {
+	--main-padding: 1.86rem;
+	--bgcolor-default: #b1b1b1;
+	--body-font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+	--page-title-font: Impact, Charcoal, sans-serif;
+}
+
+/* ----------------------------------------- */
+
+body {
+	font-family: var(--body-font);
+	font-size: 1rem;
+}
+
+nav {
+	display: flex;
+	justify-content: space-between;
+	margin-block: var(--main-padding);
+	padding: 0 2rem;
+	align-items: center;
+}
+
+h1 {
+	font-family: var(--page-title-font);
+	font-size: 1.5rem;
+	letter-spacing: 2px;
+	text-transform: uppercase;
+	font-weight: bolder;
+	background: linear-gradient(90deg, #02738b 0%, #ff6d2e 100%);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+
+svg {
+	width: 30px;
+}
+
+select {
+	padding: 5px;
+}
+
+#schedule-container > div {
+	margin: 3em;
+}
+
+.schedule {
+	display: flex;
+	flex-direction: column;
+	text-align: center;
+	margin: 0 auto;
+	border: 1px solid #E5E5E5;
+	box-shadow: -7px -7px 16px 0 #f2f2f2, 7px 7px 10px -4px rgba(116,150,179,0.27);
+	padding: 1.5em;
+}
+
+.schedule h4, p {
+	color: #6B6B6B;
+}
+.schedule,
+.time:not(:first-child) {
+	border-radius: 10px;
+}
+
+.times {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	max-width: 90%;
+	margin: 0 auto;
+}
+.time {
+	font-size: .9rem;
+	font-weight: bold;
+	margin: 10px 0;
+}
+
+.time:not(:first-child),
+.first-departure {	
+	border: .05px solid #E5E5E5;
+	font-weight: medium;
+	background: #F5F5F5;
+}
+.time:not(:first-child) {
+	padding: .7rem;
+	color: #525252;
+}
+
+.next-departure {
+	margin: .5em 0;
+	flex: 1 1 100%;
+	text-align: center;
+	font-weight: bold;
+	font-size: 2.5rem;
+}
+
+.remaining-time {
+	font-weight: lighter;
+	font-size: 1.1rem;
+}
+
+.selected-route {
+	display: block;
+}
+.hide-route {
+	display: none;
+}
+
+.first-departure {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+.first-departure p {
+	text-align: left;
+}
+
+.first-departure > span > p:first-of-type {
+	font-weight: normal;
+}
+
+.last-trip {
+	font-size: 1.3rem;
+	margin: 2em 0;
+}
