@@ -148,18 +148,24 @@ const FerrySchedule = (function () {
 								nextDepartureTimeFound += 1;								
 								if (nextDepartureTimeFound == 1) {
 									if (parseInt(time.split(':')[0]) < 12) {										
-										return `<span class='time next-departure'>${time} AM</span>`;
+										return `<div class='time next-departure'>${time} AM</div>`;
 									} else {
-										return `<span class='time next-departure'>${
-											(parseInt(time.split(':')[0])-12) == 0 ? '12:' + time.split(':')[1] : time
-											} PM</span>`;
+										let nextDepartureTime = parseInt(time.split(':')[0]) * 60 + parseInt(time.split(':')[1]);
+										let nowTime = parseInt(new Date().getHours()) * 60 + parseInt(new Date().getMinutes());
+										return `<div class='time next-departure'>
+													<p class='next-departure-time'>${
+											(parseInt(time.split(':')[0])-12) == 0 ? '12:' + time.split(':')[1] : (parseInt(time.split(':')[0])-12).toString() + ':' + time.split(':')[1]
+											} PM</p>
+											<p class='remaining-time'>Departs in ${nextDepartureTime-nowTime} minutes</p>
+											</div>
+											`;
 									}
 								} else {
 									if (parseInt(time.split(':')[0]) < 12 ) {
 										return `<span class='time'>${time} AM</span>`;					
 									} else {
 										return `<span class='time'>${
-											(parseInt(time.split(':')[0])-12) == 0 ? '12:' + time.split(':')[1] : time
+											(parseInt(time.split(':')[0])-12) == 0 ? '12:' + time.split(':')[1] : (parseInt(time.split(':')[0])-12).toString() + ':' + time.split(':')[1]
 											} PM</span>`;
 									}
 								}	

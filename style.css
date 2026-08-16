@@ -72,11 +72,9 @@ select {
 	border: 1px solid #E5E5E5;
 	box-shadow: -7px -7px 16px 0 #f2f2f2, 7px 7px 10px -4px rgba(116,150,179,0.27);
 	padding: 1.5em;
-}
-
-.schedule h4, p {
 	color: #6B6B6B;
 }
+
 .schedule,
 .time:not(:first-child) {
 	border-radius: 10px;
@@ -89,6 +87,7 @@ select {
 	max-width: 90%;
 	margin: 0 auto;
 }
+
 .time {
 	font-size: .9rem;
 	font-weight: bold;
@@ -112,6 +111,9 @@ select {
 	text-align: center;
 	font-weight: bold;
 	font-size: 2.5rem;
+}
+.next-departure-time {
+	color: #000;
 }
 
 .remaining-time {
