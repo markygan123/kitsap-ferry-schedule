@@ -156,6 +156,8 @@ const FerrySchedule = (function () {
 										remainingTime = `${hrsLeft} hours and ${minsLeft} minutes`;
 									} else if (minsLeft === 0) {
 										remainingTime = `${hrsLeft} hours`;										
+									} else if (hrsLeft === 0) {
+										remainingTime = `${minsLeft} minutes`;										
 									} else {
 										remainingTime = `${hrsLeft} hours and ${minsLeft} minutes`;
 									}
@@ -171,7 +173,7 @@ const FerrySchedule = (function () {
 													<p class='next-departure-time'>${
 											(parseInt(time.split(':')[0])-12) == 0 ? '12:' + time.split(':')[1] : (parseInt(time.split(':')[0])-12).toString() + ':' + time.split(':')[1]
 											} PM</p>
-											<p class='remaining-time'>Departs in ${remainingTime} minutes</p>
+											<p class='remaining-time'>Departs in ${remainingTime} </p>
 											</div>
 											`;
 									}
@@ -260,8 +262,15 @@ const FerrySchedule = (function () {
 		});
 	}
 
+	function autoRefresh ({ dataFunction, onComplete, interval = 60000 }) {
+		
+	}
+
 	function getEventHandlers() {
 		useRoutesToDropdown();
+		autoRefresh({
+			dataFunction: renderSchedule,                                                          
+		});
 		
 	}	
 
