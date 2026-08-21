@@ -114,13 +114,6 @@ const FerrySchedule = (function () {
 	
 	// RENDER FUNCTIONS
 	
-	function parseTimeStamp(timeStamp) {
-		var arr = timeStamp.split(':');
-		var dec = Math.floor(parseFloat(arr[1]) / 6 * 10);
-
-		return parseInt(arr[0], 10) + '.' + (dec<10?'0':'') + dec;
-	}
-	
 	function addRouteToDropdown(route) {
 		let routeDropdown = document.querySelector('select');
 		const option = new Option(route, route);
@@ -130,14 +123,17 @@ const FerrySchedule = (function () {
     
 	function displayRouteSchedule (tripsList, partOfWeekTitle) {
 		let html = '';	
+		let dateToday = new Date().toString().split(' ')[1] + "-" +	new Date().toString().split(' ')[2] + "-" + new Date().toString().split(' ')[3]
+		let currentTime = new Date(dateToday + " " + new Date().toString().split(' ')[4]);
 		
 		Object.entries(tripsList).forEach(([route, times], index) => {
-			let dateToday = new Date().toString().split(' ')[1] + "-" +	new Date().toString().split(' ')[2] + "-" + new Date().toString().split(' ')[3]
-			let currentTime = new Date(dateToday + " " + new Date().toString().split(' ')[4]);
 			let lastDepartureTime = new Date(dateToday + " " + times.departures.at(times.length));
 			let nextDepartureTimeFound = 0;
+			let timesLastDeparture = times.departures.at(-1);
+			let serviceRunning = (parseInt(new Date().getHours()) * 60 + parseInt(new Date().getMinutes()) < parseInt(timesLastDeparture.split(':')[0]) * 60 + parseInt(timesLastDeparture.split(':')[1]));
 			
-			if (new Date().getHours() >= 0) {
+			
+			if (serviceRunning) {
 				html += `
 					<div class='schedule'>
 						<h4>${times.direction}</h4>
@@ -145,18 +141,37 @@ const FerrySchedule = (function () {
 						<div class='times'>
 						${times.departures.map(function (time) {
 							if ((new Date(dateToday + ' ' + time) - currentTime) > 0) {
-								nextDepartureTimeFound += 1;								
+								nextDepartureTimeFound += 1;
+								
 								if (nextDepartureTimeFound == 1) {
-									if (parseInt(time.split(':')[0]) < 12) {										
-										return `<div class='time next-departure'>${time} AM</div>`;
+									let nextDepartureTime = parseInt(time.split(':')[0]) * 60 + parseInt(time.split(':')[1])
+									let nowTime = parseInt(new Date().getHours()) * 60 + parseInt(new Date().getMinutes());
+									let remainingTime = nextDepartureTime - nowTime;
+									let hrsLeft = Math.floor(remainingTime / 60);
+									let minsLeft = remainingTime % 60;
+									
+
+									if (minsLeft === 60) {
+										hrsLeft += 1;
+										remainingTime = `${hrsLeft} hours and ${minsLeft} minutes`;
+									} else if (minsLeft === 0) {
+										remainingTime = `${hrsLeft} hours`;										
 									} else {
-										let nextDepartureTime = parseInt(time.split(':')[0]) * 60 + parseInt(time.split(':')[1]);
-										let nowTime = parseInt(new Date().getHours()) * 60 + parseInt(new Date().getMinutes());
+										remainingTime = `${hrsLeft} hours and ${minsLeft} minutes`;
+									}
+										
+									
+									if (parseInt(time.split(':')[0]) < 12) {										
+										return `<div class='time next-departure'>
+													<p class='next-departure-time'>${time} AM</p>
+													<p class='remaining-time'>Departs in ${remainingTime}</p>
+												</div>`;
+									} else {
 										return `<div class='time next-departure'>
 													<p class='next-departure-time'>${
 											(parseInt(time.split(':')[0])-12) == 0 ? '12:' + time.split(':')[1] : (parseInt(time.split(':')[0])-12).toString() + ':' + time.split(':')[1]
 											} PM</p>
-											<p class='remaining-time'>Departs in ${nextDepartureTime-nowTime} minutes</p>
+											<p class='remaining-time'>Departs in ${remainingTime} minutes</p>
 											</div>
 											`;
 									}
@@ -176,20 +191,21 @@ const FerrySchedule = (function () {
 					</div>
 				`;
 			} else {
-				console.log(currentTime);
 				html += `
 					<div class='schedule'>
 						<h4>${times.direction}</h4>
-						<p>Service for today</p>
-						<div class='last-trip'>
-							<span>Last departure was ${times.departures.at(-1)} PM<span>
+						<p>Service has ended for today</p>
+						<div class='times'>
+							<div class='time next-departure'>
+								<p class='next-departure-time'>${parseInt(timesLastDeparture.split(':')[0]-12).toString() + ':' + timesLastDeparture.split(':')[1]} PM<p>
+								<p class='remaining-time'>Last departure</p>
+							</div>
 						</div>
-						<div class='time first-departure'>
+						<div class='time first-departure no-service'>
 							<span>
 								<p>First departure tomorrow</p>
-								<p>${times.departures[0]} AM</p>
+								<p>${times.departures.at(0)} AM</p>
 							</span>
-							<span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M304 99.9L304 448L80 448C71.2 448 64 455.2 64 464C64 525.9 114.1 576 176 576L464 576C525.9 576 576 525.9 576 464C576 455.2 568.8 448 560 448L352 448L352 400L513.7 400C526.6 400 534.2 385.6 526.9 375L333.2 90.9C324.3 77.9 304 84.2 304 99.9zM256 384L256 199.8C256 183.7 235 177.7 226.4 191.3L111.3 375.5C104.6 386.2 112.3 400 124.9 400L240 400C248.8 400 256 392.8 256 384z"/></svg></span>
 						</div>
 					</div>
 				`;
@@ -220,8 +236,8 @@ const FerrySchedule = (function () {
 	}
 
 	// EVENT HANDLERS
-
-	function getEventHandlers() {
+	
+	function useRoutesToDropdown() {
 		const routeDropdown = document.querySelector('select');
 		let getRoute = document.querySelectorAll('.schedule > h4');
 		
@@ -242,6 +258,10 @@ const FerrySchedule = (function () {
 				}
 			});
 		});
+	}
+
+	function getEventHandlers() {
+		useRoutesToDropdown();
 		
 	}	
 
