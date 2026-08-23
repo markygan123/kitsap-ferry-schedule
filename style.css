@@ -87,6 +87,12 @@ select {
 	max-width: 90%;
 	margin: 0 auto;
 }
+.times > * {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
 
 .time {
 	font-weight: bold;
