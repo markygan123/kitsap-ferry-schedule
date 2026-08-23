@@ -112,6 +112,8 @@ const FerrySchedule = (function () {
 		}
 	};
 	
+	let dropdownPopulated = false;
+	
 	// RENDER FUNCTIONS
 	
 	function addRouteToDropdown(route) {
@@ -120,76 +122,69 @@ const FerrySchedule = (function () {
 		
 		return routeDropdown.add(option, undefined);		
 	}
-    
-	function displayRouteSchedule (tripsList, partOfWeekTitle) {
+	
+	function displayRouteSchedule(tripsList, partOfWeekTitle) {
 		let html = '';	
-		let dateToday = new Date().toString().split(' ')[1] + "-" +	new Date().toString().split(' ')[2] + "-" + new Date().toString().split(' ')[3]
+		let dateToday = new Date().toString().split(' ')[1] + "-" + new Date().toString().split(' ')[2] + "-" + new Date().toString().split(' ')[3]
 		let currentTime = new Date(dateToday + " " + new Date().toString().split(' ')[4]);
 		
 		Object.entries(tripsList).forEach(([route, times], index) => {
-			let lastDepartureTime = new Date(dateToday + " " + times.departures.at(times.length));
-			let nextDepartureTimeFound = 0;
 			let timesLastDeparture = times.departures.at(-1);
 			let serviceRunning = (parseInt(new Date().getHours()) * 60 + parseInt(new Date().getMinutes()) < parseInt(timesLastDeparture.split(':')[0]) * 60 + parseInt(timesLastDeparture.split(':')[1]));
 			
-			
 			if (serviceRunning) {
+				let nextDepartureHtml = '';
+				let upcomingSpans = [];
+				
+				times.departures.forEach(time => {
+					if ((new Date(dateToday + ' ' + time) - currentTime) > 0) {
+						const hour = parseInt(time.split(':')[0]);
+						const displayLabel = hour < 12
+							? `${time} AM`
+							: `${(hour - 12) === 0 ? '12:' + time.split(':')[1] : (hour - 12) + ':' + time.split(':')[1]} PM`;
+						
+						if (nextDepartureHtml === '') {
+							let nextDepartureTime = hour * 60 + parseInt(time.split(':')[1]);
+							let nowTime = parseInt(new Date().getHours()) * 60 + parseInt(new Date().getMinutes());
+							let remainingTime = nextDepartureTime - nowTime;
+							let hrsLeft = Math.floor(remainingTime / 60);
+							let minsLeft = remainingTime % 60;
+							
+							let remainingLabel = minsLeft === 0 ? `${hrsLeft}h`
+								: hrsLeft === 0 ? `${minsLeft}m`
+								: `${hrsLeft}h ${minsLeft}m`;
+							
+							nextDepartureHtml = `
+								<div class='next-departure'>
+									<p class='next-departure-time'>${displayLabel}</p>
+									<p class='remaining-time'>Departs in ${remainingLabel}</p>
+								</div>`;
+						} else {
+							upcomingSpans.push(`${displayLabel}`);
+						}
+					}
+				});
+				
+				const visibleLabels = upcomingSpans.slice(0, 6);
+				const hiddenLabels = upcomingSpans.slice(6);
+
+				const visibleHtml = visibleLabels.map(label => `<span class='time'>${label}</span>`).join('');
+				const hiddenHtml = hiddenLabels.map(label => `<span class='time extra-time hidden-times'>${label}</span>`).join('');
+
+				const showMoreLinkHtml = hiddenLabels.length
+					? `<a href="#" class="show-more-link">Show full schedule</a>`
+					: '';
+
 				html += `
 					<div class='schedule'>
 						<h4>${times.direction}</h4>
 						<p>Next departure</p>
+						${nextDepartureHtml}
 						<div class='times'>
-						${times.departures.map(function (time) {
-							if ((new Date(dateToday + ' ' + time) - currentTime) > 0) {
-								nextDepartureTimeFound += 1;
-								
-								if (nextDepartureTimeFound == 1) {
-									let nextDepartureTime = parseInt(time.split(':')[0]) * 60 + parseInt(time.split(':')[1])
-									let nowTime = parseInt(new Date().getHours()) * 60 + parseInt(new Date().getMinutes());
-									let remainingTime = nextDepartureTime - nowTime;
-									let hrsLeft = Math.floor(remainingTime / 60);
-									let minsLeft = remainingTime % 60;
-									
-
-									if (minsLeft === 60) {
-										hrsLeft += 1;
-										remainingTime = `${hrsLeft} hours and ${minsLeft} minutes`;
-									} else if (minsLeft === 0) {
-										remainingTime = `${hrsLeft} hours`;										
-									} else if (hrsLeft === 0) {
-										remainingTime = `${minsLeft} minutes`;										
-									} else {
-										remainingTime = `${hrsLeft} hours and ${minsLeft} minutes`;
-									}
-										
-									
-									if (parseInt(time.split(':')[0]) < 12) {										
-										return `<div class='time next-departure'>
-													<p class='next-departure-time'>${time} AM</p>
-													<p class='remaining-time'>Departs in ${remainingTime}</p>
-												</div>`;
-									} else {
-										return `<div class='time next-departure'>
-													<p class='next-departure-time'>${
-											(parseInt(time.split(':')[0])-12) == 0 ? '12:' + time.split(':')[1] : (parseInt(time.split(':')[0])-12).toString() + ':' + time.split(':')[1]
-											} PM</p>
-											<p class='remaining-time'>Departs in ${remainingTime} </p>
-											</div>
-											`;
-									}
-								} else {
-									if (parseInt(time.split(':')[0]) < 12 ) {
-										return `<span class='time'>${time} AM</span>`;					
-									} else {
-										return `<span class='time'>${
-											(parseInt(time.split(':')[0])-12) == 0 ? '12:' + time.split(':')[1] : (parseInt(time.split(':')[0])-12).toString() + ':' + time.split(':')[1]
-											} PM</span>`;
-									}
-								}	
-							} 			
-						})
-						.join('')}
+							${visibleHtml}
+							${hiddenHtml}
 						</div>
+						${showMoreLinkHtml}
 					</div>
 				`;
 			} else {
@@ -212,17 +207,18 @@ const FerrySchedule = (function () {
 					</div>
 				`;
 			}
-			
-			
+		
 			addRouteToDropdown(times.direction);			
 		});	
-		
+	
 		return html;
 	}
 	
 	function renderSchedule() {
 		const container = document.getElementById('schedule-container');
 		const dayOfWeek = new Date().getDay();
+		
+		document.querySelector('select').length = 1;
 		
 		let html = '';
 		
@@ -235,17 +231,26 @@ const FerrySchedule = (function () {
 		}	
 		
 		container.innerHTML = html;
+		
 	}
 
 	// EVENT HANDLERS
 	
-	function useRoutesToDropdown() {
-		const routeDropdown = document.querySelector('select');
-		let getRoute = document.querySelectorAll('.schedule > h4');
+	function startAutoRefresh() {
+		const msUntilNextMinute = (60 - new Date().getSeconds()) * 1000;
 		
+		setTimeout(() => {
+			renderSchedule();
+			setInterval(renderSchedule, 60000);
+		}, msUntilNextMinute);
+	}
+	
+	function useRoutesToDropdown() {
+		const routeDropdown = document.querySelector('select');		
 		
 		routeDropdown.addEventListener('change', e => {
 			const selectedRoute = e.target.value;
+			const getRoute = document.querySelectorAll('.schedule > h4');
 			
 			getRoute.forEach(route => {
 				route.parentElement.classList.remove('hide-route');
@@ -260,28 +265,41 @@ const FerrySchedule = (function () {
 				}
 			});
 		});
-	}
-
-	function autoRefresh ({ dataFunction, onComplete, interval = 60000 }) {
+	}	
+	
+	function useShowMoreLinks() {
+		const container = document.getElementById('schedule-container');
 		
+		container.addEventListener('click', e => {
+			const link = e.target.closest ? e.target.closest('.show-more-link') : null;
+			if (!link) return;
+			e.preventDefault();
+			
+			const scheduleBlock = link.closest('.schedule');
+			const extraSpans = scheduleBlock.querySelectorAll('.extra-time');
+			const wasHidden = extraSpans.length > 0 && extraSpans[0].classList.contains('hidden-times');
+			
+			extraSpans.forEach(span => span.classList.toggle('hidden-times')); 
+			
+			link.textContent = wasHidden ? 'Show less' : 'Show full schedule';
+		});
 	}
-
+	
 	function getEventHandlers() {
 		useRoutesToDropdown();
-		autoRefresh({
-			dataFunction: renderSchedule,                                                          
-		});
-		
-	}	
+		useShowMoreLinks();
+	}
 
 	
 	return {
 		render: renderSchedule,
-		eventHandling: getEventHandlers
+		eventHandling: getEventHandlers,
+		startAutoRefresh: startAutoRefresh
 	}
 })();
 
 document.addEventListener('DOMContentLoaded', () => {
 	FerrySchedule.render(); 
 	FerrySchedule.eventHandling();
+	FerrySchedule.startAutoRefresh();
 });
