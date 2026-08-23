@@ -82,16 +82,10 @@ select {
 
 .times {
 	display: grid;
-	grid-template-columns: repeat(4, minmax(0, 1fr));
+	grid-template-columns: repeat(3, minmax(0, 1fr));
 	gap: 12px;
 	max-width: 90%;
 	margin: 0 auto;
-}
-.times > * {
-	min-width: 0;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
 }
 
 .time {
