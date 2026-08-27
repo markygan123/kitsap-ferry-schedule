@@ -192,11 +192,9 @@ const FerrySchedule = (function () {
 					<div class='schedule'>
 						<h4>${times.direction}</h4>
 						<p>Service has ended for today</p>
-						<div class='times'>
-							<div class='time next-departure'>
-								<p class='next-departure-time'>${parseInt(timesLastDeparture.split(':')[0]-12).toString() + ':' + timesLastDeparture.split(':')[1]} PM<p>
-								<p class='remaining-time'>Last departure</p>
-							</div>
+						<div class='next-departure'>
+							<p class='next-departure-time'>${parseInt(timesLastDeparture.split(':')[0]-12).toString() + ':' + timesLastDeparture.split(':')[1]} PM</p>
+							<p class='remaining-time'>Last departure</p>
 						</div>
 						<div class='time first-departure no-service'>
 							<span>
