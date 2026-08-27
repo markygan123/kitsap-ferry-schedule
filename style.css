@@ -36,7 +36,7 @@ nav {
 	display: flex;
 	justify-content: space-between;
 	margin-block: var(--main-padding);
-	padding: 0 2rem;
+	padding: 0 2em;
 	align-items: center;
 }
 
@@ -60,15 +60,11 @@ select {
 	width: 150px;
 }
 
-#schedule-container > div {
-	margin: 2em;
-}
-
 .schedule {
 	display: flex;
 	flex-direction: column;
 	text-align: center;
-	margin: 0 auto;
+	margin: 3em;
 	border: 1px solid #E5E5E5;
 	box-shadow: -7px -7px 16px 0 #f2f2f2, 7px 7px 10px -4px rgba(116,150,179,0.27);
 	padding: 1.5em;
@@ -152,4 +148,20 @@ select {
 .show-more-link {
 	color: #0F6E56;
 	margin-top: 15px;
+}
+
+/* MEDIA QUERIES */
+
+@media (min-width: 600px) {
+	#schedule-container {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 10px;
+		padding: 0 10em;
+	}
+	
+	.schedule {
+		margin: 0;	
+		flex: 1 1 calc(33.33% - 14px);
+	}
 }
