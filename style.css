@@ -156,7 +156,7 @@ select {
 	#schedule-container {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 10px;
+		gap: 20px;
 		padding: 0 10em;
 	}
 	
